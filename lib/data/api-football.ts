@@ -74,6 +74,37 @@ async function request<T>(
   return data.response;
 }
 
+// Peticion generica que devuelve la respuesta cruda (incluye results y errors).
+// La usa el endpoint de diagnostico para inspeccionar el plan y la cobertura.
+export interface RawApiResult {
+  results: number;
+  errors: unknown;
+  response: unknown;
+}
+
+export async function apiFootballGet(
+  path: string,
+  params: Record<string, string | number> = {},
+): Promise<RawApiResult> {
+  if (!isConfigured()) {
+    throw new Error("API_FOOTBALL_KEY no configurada.");
+  }
+  const url = new URL(`${BASE_URL}${path}`);
+  for (const [k, v] of Object.entries(params)) {
+    url.searchParams.set(k, String(v));
+  }
+  const res = await fetch(url.toString(), {
+    headers: headers(),
+    cache: "no-store",
+  });
+  const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  return {
+    results: typeof json.results === "number" ? json.results : 0,
+    errors: json.errors ?? null,
+    response: json.response ?? null,
+  };
+}
+
 // ID de la Copa Mundial en API-Football.
 export const WORLD_CUP_LEAGUE_ID = 1;
 export const WORLD_CUP_SEASON = 2026;
