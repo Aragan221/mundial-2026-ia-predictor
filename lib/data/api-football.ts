@@ -85,6 +85,7 @@ export interface RawApiResult {
 export async function apiFootballGet(
   path: string,
   params: Record<string, string | number> = {},
+  options: { revalidate?: number } = {},
 ): Promise<RawApiResult> {
   if (!isConfigured()) {
     throw new Error("API_FOOTBALL_KEY no configurada.");
@@ -93,10 +94,14 @@ export async function apiFootballGet(
   for (const [k, v] of Object.entries(params)) {
     url.searchParams.set(k, String(v));
   }
-  const res = await fetch(url.toString(), {
-    headers: headers(),
-    cache: "no-store",
-  });
+  // Por defecto sin cache (diagnostico). Para datos en vivo se pasa revalidate
+  // para cachear y respetar el limite de 100 peticiones/dia del plan Free.
+  const fetchOpts: RequestInit & { next?: { revalidate: number } } =
+    typeof options.revalidate === "number"
+      ? { headers: headers(), next: { revalidate: options.revalidate } }
+      : { headers: headers(), cache: "no-store" };
+
+  const res = await fetch(url.toString(), fetchOpts);
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   return {
     results: typeof json.results === "number" ? json.results : 0,
