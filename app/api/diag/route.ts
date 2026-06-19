@@ -80,5 +80,43 @@ export async function GET() {
     }
   }
 
+  // 4. Sonda por FECHA (lo permitido en plan Free: hoy +-1 dia).
+  //    Consulta sin filtrar liga para ver QUE devuelve realmente tu plan.
+  const today = new Date();
+  const probe: Record<string, unknown> = {};
+  for (const off of [-1, 0, 1]) {
+    const d = new Date(today);
+    d.setUTCDate(d.getUTCDate() + off);
+    const date = d.toISOString().slice(0, 10);
+    try {
+      const r = await apiFootballGet("/fixtures", { date });
+      const arr = (r.response as Array<Record<string, any>>) ?? [];
+      // Agrupa por liga para ver que competiciones aparecen.
+      const leagues: Record<string, { name: string; season: number; count: number }> = {};
+      for (const f of arr) {
+        const id = f?.league?.id;
+        if (id == null) continue;
+        const key = String(id);
+        if (!leagues[key]) {
+          leagues[key] = {
+            name: f.league?.name ?? "",
+            season: f.league?.season ?? 0,
+            count: 0,
+          };
+        }
+        leagues[key].count++;
+      }
+      probe[date] = {
+        total: r.results,
+        errors: r.errors,
+        leagues,
+        worldCupId1: leagues["1"] ?? null,
+      };
+    } catch (e) {
+      probe[date] = { error: String(e) };
+    }
+  }
+  (out as Record<string, unknown>).dateProbe = probe;
+
   return NextResponse.json(out);
 }
