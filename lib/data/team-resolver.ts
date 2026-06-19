@@ -1,5 +1,6 @@
 import type { Team } from "@/lib/model/types";
 import { TEAMS } from "@/lib/data/teams";
+import { EXTRA_RATINGS } from "@/lib/data/ratings-extra";
 
 // ===========================================================================
 // Conecta el nombre real que devuelve API-Football (en ingles) con un equipo
@@ -82,13 +83,37 @@ export interface ResolvedTeam {
 }
 
 export function resolveTeam(apiName: string): ResolvedTeam {
-  const id = NAME_TO_ID[norm(apiName)];
+  const key = norm(apiName);
+
+  // 1. Equipo de la lista base de 48.
+  const id = NAME_TO_ID[key];
   if (id && BY_ID[id]) return { team: BY_ID[id], known: true };
 
-  // Equipo generico con ratings neutros (no esta en el modelo).
+  // 2. Equipo de la tabla extra de ratings.
+  const extra = EXTRA_RATINGS[key];
+  if (extra) {
+    return {
+      team: {
+        id: `e-${key.replace(/ /g, "-")}`,
+        name: extra.name,
+        code: "",
+        group: "",
+        fifaRank: extra.fifaRank,
+        attack: extra.attack,
+        defense: extra.defense,
+        form: extra.form,
+        cardsAvg: extra.cardsAvg,
+        cornersAvg: extra.cornersAvg,
+        squad: [],
+      },
+      known: true,
+    };
+  }
+
+  // 3. Equipo generico con ratings neutros (no esta en el modelo).
   return {
     team: {
-      id: `x-${norm(apiName).replace(/ /g, "-")}`,
+      id: `x-${key.replace(/ /g, "-")}`,
       name: apiName,
       code: "",
       group: "",

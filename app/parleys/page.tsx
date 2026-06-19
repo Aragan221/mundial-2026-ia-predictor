@@ -9,10 +9,17 @@ export const metadata = {
 
 export const revalidate = 120;
 
+const KIND_ACCENT: Record<Parlay["kind"], string> = {
+  safe: "text-signal-win",
+  balanced: "text-accent",
+  risky: "text-signal-draw",
+  goals: "text-accent",
+  score: "text-signal-loss",
+};
+
 export default async function ParleysPage() {
   const data = await fetchWorldCupLive();
 
-  // Solo partidos que aun no empiezan (programados).
   const upcoming = data.matches
     .filter((m) => {
       const s = statusInfo(m);
@@ -34,9 +41,9 @@ export default async function ParleysPage() {
           Parleys mas probables
         </h1>
         <p className="mt-1 text-sm text-ink-500">
-          El modelo Poisson analiza los proximos partidos reales del Mundial y
-          calcula la apuesta mas probable de cada uno. Luego arma combinadas
-          ordenadas por probabilidad.
+          El modelo Poisson analiza los proximos partidos reales del Mundial,
+          calcula todos los mercados y arma combinadas ordenadas por
+          probabilidad.
         </p>
       </div>
 
@@ -68,11 +75,11 @@ export default async function ParleysPage() {
       {legs.length > 0 && (
         <section>
           <SectionTitle index="02">
-            Apuestas mas probables · partido por partido
+            Analisis completo · partido por partido
           </SectionTitle>
-          <div className="card divide-y divide-ink-800">
+          <div className="space-y-3">
             {legs.map((leg, i) => (
-              <LegRow key={`${leg.homeName}-${leg.awayName}`} i={i} leg={leg} />
+              <LegCard key={`${leg.homeName}-${leg.awayName}`} i={i} leg={leg} />
             ))}
           </div>
         </section>
@@ -90,11 +97,11 @@ export default async function ParleysPage() {
 function ParlayCard({ parlay }: { parlay: Parlay }) {
   return (
     <div className="card flex flex-col p-5">
-      <div className="mb-4 flex items-baseline justify-between">
-        <h3 className="font-mono text-xs uppercase tracking-wider text-accent">
-          {parlay.name}
-        </h3>
-      </div>
+      <h3
+        className={`mb-4 font-mono text-xs uppercase tracking-wider ${KIND_ACCENT[parlay.kind]}`}
+      >
+        {parlay.name}
+      </h3>
 
       <div className="flex-1 space-y-3">
         {parlay.legs.map((leg) => (
@@ -131,30 +138,68 @@ function ParlayCard({ parlay }: { parlay: Parlay }) {
   );
 }
 
-function LegRow({ i, leg }: { i: number; leg: ParlayLeg }) {
+function LegCard({ i, leg }: { i: number; leg: ParlayLeg }) {
+  const e = leg.extra;
   return (
-    <div className="grid grid-cols-[2rem_1fr_auto] items-center gap-4 px-4 py-3">
-      <span className="stat-num text-sm text-ink-500">
-        {String(i + 1).padStart(2, "0")}
-      </span>
-      <div className="min-w-0">
-        <p className="truncate text-sm text-white">
-          {leg.homeName} <span className="text-ink-600">vs</span> {leg.awayName}
-        </p>
-        <div className="mt-1 flex items-center gap-3">
-          <span className="font-mono text-[11px] uppercase tracking-wider text-accent">
-            {leg.pick.code}
-          </span>
-          <span className="truncate text-xs text-ink-500">{leg.pick.label}</span>
+    <div className="card p-4">
+      <div className="grid grid-cols-[2rem_1fr_auto] items-center gap-4">
+        <span className="stat-num text-sm text-ink-500">
+          {String(i + 1).padStart(2, "0")}
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-sm text-white">
+            {leg.homeName} <span className="text-ink-600">vs</span>{" "}
+            {leg.awayName}
+            {!leg.known && (
+              <span className="ml-2 align-middle font-mono text-[9px] uppercase tracking-wider text-ink-500">
+                rating estimado
+              </span>
+            )}
+          </p>
+          <div className="mt-1 flex items-center gap-3">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-accent">
+              {leg.pick.code}
+            </span>
+            <span className="truncate text-xs text-ink-500">
+              {leg.pick.label}
+            </span>
+          </div>
+          <div className="mt-1.5 max-w-xs">
+            <ProbBar value={leg.pick.prob} />
+          </div>
         </div>
-        <div className="mt-1.5 max-w-xs">
-          <ProbBar value={leg.pick.prob} />
+        <div className="text-right">
+          <p className="stat-num text-lg text-white">{pct(leg.pick.prob)}</p>
+          <p className="label">cuota {leg.odds.toFixed(2)}</p>
         </div>
       </div>
-      <div className="text-right">
-        <p className="stat-num text-lg text-white">{pct(leg.pick.prob)}</p>
-        <p className="label">cuota {leg.odds.toFixed(2)}</p>
+
+      {/* Mercados adicionales */}
+      <div className="mt-3 grid grid-cols-2 gap-2 border-t border-ink-800 pt-3 sm:grid-cols-4">
+        <Chip label="Marcador probable" value={`${e.topScore.home}-${e.topScore.away}`} sub={pct(e.topScore.prob)} />
+        <Chip label={e.handicap.label} value={pct(e.handicap.prob)} sub="handicap" />
+        <Chip label="+3.5 tarjetas" value={pct(e.cardsOver35)} sub={`~${e.cardsExpected}`} />
+        <Chip label={`Corners O${e.cornersLine}`} value={pct(e.cornersOver)} sub={`~${e.cornersExpected}`} />
       </div>
+    </div>
+  );
+}
+
+function Chip({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+}) {
+  return (
+    <div className="bg-ink-800/50 px-3 py-2">
+      <p className="label truncate">{label}</p>
+      <p className="stat-num text-sm text-white">
+        {value} <span className="text-ink-600">{sub}</span>
+      </p>
     </div>
   );
 }
