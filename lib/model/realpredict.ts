@@ -49,6 +49,14 @@ export interface RealMatchPrediction {
   scorePick: Pick;
   extra: ExtraMarkets;
   sameGame: SameGameCombo;
+  raw: {
+    homeWin: number;
+    draw: number;
+    awayWin: number;
+    over25: number;
+    under25: number;
+    bttsYes: number;
+  };
 }
 
 type ScorePred = (h: number, a: number) => boolean;
@@ -177,5 +185,13 @@ export function predictReal(
       cornersOver: corners.overLine,
     },
     sameGame,
+    raw: {
+      homeWin: d.homeWin,
+      draw: d.draw,
+      awayWin: d.awayWin,
+      over25: d.over25,
+      under25: 1 - d.over25,
+      bttsYes: d.bttsYes,
+    },
   };
 }
