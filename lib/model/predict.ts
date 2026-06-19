@@ -64,8 +64,40 @@ export function predictMatch(fixture: Fixture): MatchPrediction {
     away,
     markets,
     confidence: confidenceIndex(home, away, markets),
+    pollaScore: consistentScore(matrix, d.homeWin, d.draw, d.awayWin),
     generatedAt: new Date().toISOString(),
   };
+}
+
+// Marcador mas probable COHERENTE con el resultado 1X2 dominante.
+// Evita mostrar "1-1" con signo de victoria: busca el marcador mas probable
+// DENTRO del resultado pronosticado (local / empate / visitante).
+function consistentScore(
+  matrix: number[][],
+  homeWin: number,
+  draw: number,
+  awayWin: number,
+): { home: number; away: number } {
+  const outcome =
+    homeWin >= draw && homeWin >= awayWin
+      ? "1"
+      : awayWin >= draw
+        ? "2"
+        : "X";
+
+  let best = { home: outcome === "2" ? 0 : 1, away: outcome === "1" ? 0 : 1 };
+  let bestP = -1;
+  for (let hg = 0; hg < matrix.length; hg++) {
+    for (let ag = 0; ag < matrix[hg].length; ag++) {
+      const match =
+        outcome === "1" ? hg > ag : outcome === "2" ? ag > hg : hg === ag;
+      if (match && matrix[hg][ag] > bestP) {
+        bestP = matrix[hg][ag];
+        best = { home: hg, away: ag };
+      }
+    }
+  }
+  return best;
 }
 
 // Indice de confianza 0-100: mas alto cuando un resultado domina claramente y

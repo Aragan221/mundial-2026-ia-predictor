@@ -37,22 +37,25 @@ export function computeValue(
 
     const pred = predictReal(m.homeName, m.awayName);
     const r = pred.raw;
+    // Nombres en espanol (los provee el predictor tras resolver el equipo).
+    const hn = pred.homeName;
+    const an = pred.awayName;
 
     const candidates: { market: string; prob: number; odd?: number }[] = [
-      { market: `Gana ${m.homeName}`, prob: r.homeWin, odd: o.home },
+      { market: `Gana ${hn}`, prob: r.homeWin, odd: o.home },
       { market: "Empate", prob: r.draw, odd: o.draw },
-      { market: `Gana ${m.awayName}`, prob: r.awayWin, odd: o.away },
+      { market: `Gana ${an}`, prob: r.awayWin, odd: o.away },
       { market: "Mas de 2.5 goles", prob: r.over25, odd: o.over25 },
       { market: "Menos de 2.5 goles", prob: r.under25, odd: o.under25 },
       { market: "Ambos marcan", prob: r.bttsYes, odd: o.bttsYes },
     ];
 
     for (const c of candidates) {
-      if (c.odd == null || c.odd <= 1 || c.odd > 6) continue;
+      if (c.odd == null || c.odd <= 1 || c.odd > 4.5) continue;
       const value = c.prob * c.odd - 1;
       opps.push({
-        homeName: m.homeName,
-        awayName: m.awayName,
+        homeName: hn,
+        awayName: an,
         kickoff: m.kickoff,
         market: c.market,
         modelProb: c.prob,

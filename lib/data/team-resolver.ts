@@ -128,3 +128,10 @@ export function resolveTeam(apiName: string): ResolvedTeam {
     known: false,
   };
 }
+
+
+// Nombre para mostrar en espanol si el equipo es conocido; si no, el original.
+export function displayTeamName(apiName: string): string {
+  const r = resolveTeam(apiName);
+  return r.known ? r.team.name : apiName;
+}

@@ -78,6 +78,10 @@ export function predictReal(
   const h = resolveTeam(homeName);
   const a = resolveTeam(awayName);
 
+  // Nombres para mostrar (en espanol si el equipo es conocido).
+  const hn = h.team.name;
+  const an = a.team.name;
+
   const fixture: Fixture = {
     id: "real",
     stage: "Grupos",
@@ -106,17 +110,17 @@ export function predictReal(
   const homeFav = d.homeWin >= d.awayWin;
   const handicap: Pick = {
     code: "H-1.5",
-    label: `${homeFav ? homeName : awayName} -1.5`,
+    label: `${homeFav ? hn : an} -1.5`,
     prob: homeFav ? homeBy2 : awayBy2,
   };
 
   const top = d.topScores[0];
 
   const picks: Pick[] = [
-    { code: "1", label: `Gana ${homeName}`, prob: d.homeWin },
-    { code: "2", label: `Gana ${awayName}`, prob: d.awayWin },
-    { code: "1X", label: `${homeName} o empate`, prob: d.homeWin + d.draw },
-    { code: "X2", label: `Empate o ${awayName}`, prob: d.draw + d.awayWin },
+    { code: "1", label: `Gana ${hn}`, prob: d.homeWin },
+    { code: "2", label: `Gana ${an}`, prob: d.awayWin },
+    { code: "1X", label: `${hn} o empate`, prob: d.homeWin + d.draw },
+    { code: "X2", label: `Empate o ${an}`, prob: d.draw + d.awayWin },
     { code: "O1.5", label: "Mas de 1.5 goles", prob: d.over15 },
     { code: "O2.5", label: "Mas de 2.5 goles", prob: d.over25 },
     { code: "BTTS", label: "Ambos marcan", prob: d.bttsYes },
@@ -130,8 +134,8 @@ export function predictReal(
   // --- Combinada del mismo partido (same-game) ---
   // Leg 1: doble oportunidad del favorito (mercado de marcador).
   const dcLeg: Pick = homeFav
-    ? { code: "1X", label: `${homeName} o empate`, prob: d.homeWin + d.draw }
-    : { code: "X2", label: `Empate o ${awayName}`, prob: d.draw + d.awayWin };
+    ? { code: "1X", label: `${hn} o empate`, prob: d.homeWin + d.draw }
+    : { code: "X2", label: `Empate o ${an}`, prob: d.draw + d.awayWin };
   const dcPred: ScorePred = homeFav ? (gh, ga) => gh >= ga : (gh, ga) => ga >= gh;
 
   // Leg 2: linea de goles mas probable (Over 1.5 vs Under 3.5), de marcador.
@@ -160,8 +164,8 @@ export function predictReal(
   };
 
   return {
-    homeName,
-    awayName,
+    homeName: hn,
+    awayName: an,
     known: h.known && a.known,
     lambdaHome: lambda.home,
     lambdaAway: lambda.away,

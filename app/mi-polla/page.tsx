@@ -8,14 +8,12 @@ export const metadata = {
   title: "Mi Polla · Mundial 2026 IA Predictor",
 };
 
-function sign(p: {
-  homeWin: number;
-  draw: number;
-  awayWin: number;
-}): { code: "1" | "X" | "2"; color: string } {
-  if (p.homeWin >= p.draw && p.homeWin >= p.awayWin)
-    return { code: "1", color: "bg-signal-win text-ink-950" };
-  if (p.awayWin >= p.draw) return { code: "2", color: "bg-signal-loss text-ink-950" };
+function signFromScore(home: number, away: number): {
+  code: "1" | "X" | "2";
+  color: string;
+} {
+  if (home > away) return { code: "1", color: "bg-signal-win text-ink-950" };
+  if (away > home) return { code: "2", color: "bg-signal-loss text-ink-950" };
   return { code: "X", color: "bg-signal-draw text-ink-950" };
 }
 
@@ -37,8 +35,8 @@ export default function MiPollaPage() {
             <div className="divide-y divide-ink-800">
               {fixturesByGroup(g).map((f) => {
                 const p = predictMatch(f);
-                const s = p.markets.topScores[0];
-                const sg = sign(p.markets);
+                const s = p.pollaScore;
+                const sg = signFromScore(s.home, s.away);
                 return (
                   <div
                     key={f.id}

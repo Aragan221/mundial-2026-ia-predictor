@@ -67,8 +67,8 @@ export function buildParlays(matches: UpcomingMatch[]): ParlaysResult {
   // Legs principales: la mejor apuesta de cada partido (ordenadas por prob).
   const legs: ParlayLeg[] = preds
     .map(({ m, pred }) => ({
-      homeName: m.homeName,
-      awayName: m.awayName,
+      homeName: pred.homeName,
+      awayName: pred.awayName,
       homeLogo: m.homeLogo,
       awayLogo: m.awayLogo,
       pick: pred.bestPick,
@@ -87,18 +87,18 @@ export function buildParlays(matches: UpcomingMatch[]): ParlaysResult {
 
   // Fuente para parley de goles (Over 1.5), ordenado por probabilidad.
   const goalsSource = preds
-    .map(({ m, pred }) => ({
-      homeName: m.homeName,
-      awayName: m.awayName,
+    .map(({ pred }) => ({
+      homeName: pred.homeName,
+      awayName: pred.awayName,
       pick: pred.goalsPick,
     }))
     .sort((a, b) => b.pick.prob - a.pick.prob);
 
   // Fuente para parley de marcadores exactos (mas arriesgado, mayor cuota).
   const scoreSource = preds
-    .map(({ m, pred }) => ({
-      homeName: m.homeName,
-      awayName: m.awayName,
+    .map(({ pred }) => ({
+      homeName: pred.homeName,
+      awayName: pred.awayName,
       pick: pred.scorePick,
     }))
     .sort((a, b) => b.pick.prob - a.pick.prob);

@@ -1,4 +1,5 @@
 import { fetchWorldCupLive, statusInfo, type LiveMatch } from "@/lib/data/live";
+import { displayTeamName } from "@/lib/data/team-resolver";
 import { SectionTitle } from "@/components/ui";
 
 export const metadata = {
@@ -88,7 +89,7 @@ function MatchRow({ m }: { m: LiveMatch }) {
       </div>
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-        <TeamCol name={m.home.name} logo={m.home.logo} align="left" />
+        <TeamCol name={displayTeamName(m.home.name)} logo={m.home.logo} align="left" />
 
         <div className="text-center">
           {s.done || s.live ? (
@@ -103,7 +104,7 @@ function MatchRow({ m }: { m: LiveMatch }) {
           <p className="mt-1 label">{time}</p>
         </div>
 
-        <TeamCol name={m.away.name} logo={m.away.logo} align="right" />
+        <TeamCol name={displayTeamName(m.away.name)} logo={m.away.logo} align="right" />
       </div>
 
       {m.venue && (

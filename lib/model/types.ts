@@ -98,5 +98,7 @@ export interface MatchPrediction {
   markets: MarketResult;
   // Indice de confianza global (0-100) del partido.
   confidence: number;
+  // Marcador mas probable COHERENTE con el resultado 1X2 dominante (para polla).
+  pollaScore: { home: number; away: number };
   generatedAt: string;
 }
