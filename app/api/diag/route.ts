@@ -25,6 +25,7 @@ interface Diag {
   fixtureCounts?: Record<string, number | string>;
   errors?: Record<string, unknown>;
   dateProbe?: Record<string, unknown>;
+  oddsProbe?: Record<string, unknown>;
 }
 
 export async function GET() {
@@ -118,6 +119,34 @@ export async function GET() {
     }
   }
   out.dateProbe = probe;
+
+  // 5. Sonda de CUOTAS (odds) para validar la funcion de Value Bets.
+  const today2 = new Date().toISOString().slice(0, 10);
+  const odds: Record<string, unknown> = {};
+  try {
+    const r = await apiFootballGet("/odds", { date: today2 });
+    const arr = (r.response as Array<Record<string, any>>) ?? [];
+    let wc = 0;
+    for (const f of arr) if (f?.league?.id === 1) wc++;
+    const sample = arr[0];
+    odds.total = r.results;
+    odds.errors = r.errors;
+    odds.worldCupWithOdds = wc;
+    if (sample) {
+      const bk = sample.bookmakers?.[0];
+      odds.sample = {
+        league: sample.league?.id,
+        bookmakers: (sample.bookmakers ?? []).length,
+        firstBookmaker: bk?.name ?? null,
+        markets: Array.isArray(bk?.bets)
+          ? bk.bets.map((b: { name: string }) => b.name).slice(0, 10)
+          : [],
+      };
+    }
+  } catch (e) {
+    odds.error = String(e);
+  }
+  out.oddsProbe = odds;
 
   return NextResponse.json(out);
 }

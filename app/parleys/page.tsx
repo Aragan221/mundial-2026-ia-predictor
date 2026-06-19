@@ -12,7 +12,7 @@ export const metadata = {
   title: "Parleys · Mundial 2026 IA Predictor",
 };
 
-export const revalidate = 120;
+export const revalidate = 86400;
 
 const KIND_ACCENT: Record<Parlay["kind"], string> = {
   safe: "text-signal-win",

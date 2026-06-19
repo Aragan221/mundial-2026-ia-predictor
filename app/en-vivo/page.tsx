@@ -5,8 +5,8 @@ export const metadata = {
   title: "En vivo · Mundial 2026 IA Predictor",
 };
 
-// Datos en tiempo real: revalida cada 120 segundos (cuida el limite de 100/dia).
-export const revalidate = 120;
+// Datos reales: revalida cada 24h (cuida el limite de 100 peticiones/dia del plan Free).
+export const revalidate = 86400;
 
 export default async function EnVivoPage() {
   const data = await fetchWorldCupLive();

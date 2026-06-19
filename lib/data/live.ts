@@ -85,7 +85,7 @@ export async function fetchWorldCupLive(): Promise<LiveResult> {
       // IMPORTANTE: en el plan Free NO se puede combinar league=1 con date
       // (lo asocia a la temporada 2026 bloqueada y devuelve 0). Por eso se
       // consulta solo por `date` y se filtra el Mundial (id 1) aqui.
-      const r = await apiFootballGet("/fixtures", { date }, { revalidate: 120 });
+      const r = await apiFootballGet("/fixtures", { date }, { revalidate: 86400 });
       const arr = (r.response as Array<Record<string, any>>) ?? [];
       for (const f of arr) {
         if (f?.league?.id === WORLD_CUP_LEAGUE_ID) matches.push(normalize(f));
