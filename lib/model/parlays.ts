@@ -2,6 +2,7 @@ import {
   predictReal,
   type Pick,
   type ExtraMarkets,
+  type SameGameCombo,
 } from "@/lib/model/realpredict";
 
 // ===========================================================================
@@ -20,6 +21,7 @@ export interface ParlayLeg {
   odds: number;
   known: boolean;
   extra: ExtraMarkets;
+  sameGame: SameGameCombo;
 }
 
 export interface Parlay {
@@ -73,6 +75,7 @@ export function buildParlays(matches: UpcomingMatch[]): ParlaysResult {
       odds: pred.bestPick.prob > 0 ? 1 / pred.bestPick.prob : 0,
       known: pred.known,
       extra: pred.extra,
+      sameGame: pred.sameGame,
     }))
     .sort((a, b) => b.pick.prob - a.pick.prob);
 
