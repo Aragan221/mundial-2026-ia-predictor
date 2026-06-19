@@ -24,6 +24,7 @@ interface Diag {
   };
   fixtureCounts?: Record<string, number | string>;
   errors?: Record<string, unknown>;
+  dateProbe?: Record<string, unknown>;
 }
 
 export async function GET() {
@@ -116,7 +117,7 @@ export async function GET() {
       probe[date] = { error: String(e) };
     }
   }
-  (out as Record<string, unknown>).dateProbe = probe;
+  out.dateProbe = probe;
 
   return NextResponse.json(out);
 }
