@@ -24,14 +24,14 @@ export default function HomePage() {
             </h1>
             <div className="mt-4 flex items-center gap-4">
               <Flag teamId={champ.team.id} size={80} className="h-12" />
-              <span className="text-4xl font-semibold tracking-tightest text-accent sm:text-6xl">
+              <span className="glow-accent anim-pop text-4xl font-semibold tracking-tightest text-accent sm:text-6xl">
                 {champ.team.name}
               </span>
             </div>
           </div>
           <div className="text-right">
             <p className="label mb-1">Prob. de campeon</p>
-            <p className="stat-num text-6xl text-white sm:text-7xl">
+            <p className="stat-num anim-pop text-6xl text-white sm:text-7xl">
               {pctRaw(champ.pct)}
             </p>
           </div>
@@ -121,7 +121,7 @@ function NavCard({
   return (
     <Link
       href={href}
-      className="card group p-5 transition-colors hover:border-accent"
+      className="card card-interactive group p-5 hover:border-accent"
     >
       <p className="font-mono text-xs text-accent">{index}</p>
       <p className="mt-2 text-lg font-semibold tracking-tight text-white group-hover:text-accent">

@@ -11,7 +11,7 @@ export function ProbBar({
   return (
     <div className="prob-track">
       <div
-        className={`h-full ${color}`}
+        className={`prob-fill h-full ${color}`}
         style={{ width: `${Math.max(2, Math.min(100, value * 100))}%` }}
       />
     </div>
