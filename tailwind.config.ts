@@ -9,14 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Paleta "terminal de datos deportiva"
+        // Paleta "terminal de datos deportiva" (version con mas contraste).
         ink: {
-          950: "#05070a",
-          900: "#0a0e14",
-          800: "#11161f",
-          700: "#1a212d",
-          600: "#262f3d",
-          500: "#3a4556",
+          950: "#0c111b",
+          900: "#151c2a",
+          800: "#212a3b",
+          700: "#313c52",
+          600: "#4a5874",
+          500: "#94a3bd",
         },
         accent: {
           DEFAULT: "#c8ff00",
@@ -24,9 +24,9 @@ const config: Config = {
           soft: "#e6ff80",
         },
         signal: {
-          win: "#33d17a",
-          draw: "#f5b942",
-          loss: "#ff5c5c",
+          win: "#3ee07f",
+          draw: "#ffc23d",
+          loss: "#ff6b6b",
         },
       },
       fontFamily: {
